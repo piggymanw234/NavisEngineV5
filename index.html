@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NAVIS ENGINE V5</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap');
+
+  :root {
+    --bg: #0d0e0f;
+    --bg2: #0f1012;
+    --panel: #0b0c0d;
+    --border: #222426;
+    --red: #e03030;
+    --red2: #ff4444;
+    --red3: #b02020;
+    --red-glow: rgba(224,48,48,0.1);
+    --text: #c8cacc;
+    --text2: #7a7d80;
+    --text3: #404346;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Share Tech Mono',monospace;
+    overflow:hidden;
+    height:100vh;
+    width:100vw;
+    display:flex;
+    flex-direction:column;
+  }
+
+  /* ═══ TOP BAR ═══ */
+  #topbar {
+    height:38px;
+    background:#080909;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    align-items:stretch;
+    flex-shrink:0;
+  }
+
+  #logo {
+    font-family:'Orbitron',monospace;
+    font-weight:900;
+    font-size:13px;
+    color:var(--red2);
+    letter-spacing:3px;
+    text-shadow:0 0 12px var(--red),0 0 24px rgba(224,48,48,0.2);
+    padding:0 16px;
+    display:flex;
+    align-items:center;
+    gap:5px;
+    border-right:1px solid var(--border);
+    flex-shrink:0;
+    white-space:nowrap;
+  }
+  #logo em { font-style:normal; font-size:9px; color:#ff5555; opacity:0.5; letter-spacing:2px; }
+
+  /* ═══ TAB BAR ═══ */
+  #tabs {
+    display:flex;
+    align-items:stretch;
+    flex:1;
+    overflow:hidden;
+  }
+
+  .tab {
+    display:flex;
+    align-items:center;
+    gap:6px;
+    padding:0 15px;
+    cursor:pointer;
+    font-family:'Rajdhani',sans-serif;
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:var(--text3);
+    border-right:1px solid var(--border);
+    white-space:nowrap;
+    flex-shrink:0;
+    transition:all 0.12s;
+    position:relative;
+    user-select:none;
+  }
+  .tab:hover { color:var(--text2); background:rgba(255,255,255,0.02); }
+  .tab.on {
+    color:var(--red2);
+    background:var(--bg);
+    border-bottom:2px solid var(--red);
+    text-shadow:0 0 8px rgba(224,48,48,0.4);
+  }
+  .tab-ic { font-size:13px; }
+
+  #add-tab {
+    padding:0 13px;
+    color:var(--text3);
+    font-size:17px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    border-right:1px solid var(--border);
+    flex-shrink:0;
+    transition:all 0.12s;
+  }
+  #add-tab:hover { color:var(--red2); background:var(--red-glow); }
+
+  #topright {
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:0 14px;
+    margin-left:auto;
+    flex-shrink:0;
+  }
+  .dot { width:6px;height:6px;border-radius:50%;background:var(--red);box-shadow:0 0 6px var(--red);animation:p 2s infinite; }
+  @keyframes p{0%,100%{opacity:1}50%{opacity:0.25}}
+  #st { font-size:10px; color:var(--text3); letter-spacing:1px; }
+
+  /* ═══ BODY ═══ */
+  #body { flex:1; display:flex; overflow:hidden; }
+
+  /* ═══ SIDEBAR ═══ */
+  #sb {
+    width:185px;
+    min-width:185px;
+    background:var(--panel);
+    border-right:1px solid var(--border);
+    display:flex;
+    flex-direction:column;
+    flex-shrink:0;
+    overflow:hidden;
+  }
+  .sb-sec { border-bottom:1px solid #181a1c; }
+  .sb-hd {
+    padding:6px 10px;
+    font-family:'Rajdhani',sans-serif;
+    font-size:9px;font-weight:600;
+    letter-spacing:2.5px;text-transform:uppercase;
+    color:var(--red3);
+    background:#07080a;
+  }
+  .flist { padding:2px 0; }
+  .frow {
+    display:flex;align-items:center;gap:6px;
+    padding:4px 10px;
+    font-size:11px;color:var(--text2);
+    cursor:pointer;
+    border-left:2px solid transparent;
+    transition:all 0.1s;
+  }
+  .frow:hover { background:var(--red-glow);color:var(--text);border-left-color:var(--red3); }
+  .frow.on { background:rgba(224,48,48,0.07);color:var(--red2);border-left-color:var(--red); }
+  .fn { flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+  .fdel { opacity:0;font-size:9px;color:var(--red3);cursor:pointer; }
+  .frow:hover .fdel { opacity:1; }
+  .sb-acts { padding:6px;display:flex;flex-direction:column;gap:3px; }
+  .sbbtn {
+    background:#0d0e10;
+    border:1px solid var(--border);
+    color:var(--text2);
+    font-family:'Rajdhani',sans-serif;
+    font-size:10px;font-weight:600;
+    letter-spacing:1px;text-transform:uppercase;
+    padding:5px 8px;
+    cursor:pointer;border-radius:2px;
+    transition:all 0.1s;
+    text-align:left;
+    display:flex;align-items:center;gap:6px;
+  }
+  .sbbtn:hover { color:var(--red2);border-color:var(--red3);background:var(--red-glow); }
+
+  /* ═══ CONTENT ═══ */
+  #content { flex:1;overflow:hidden;position:relative; }
+  .panel { display:none;height:100%;flex-direction:column; }
+  .panel.on { display:flex; }
+
+  /* ─ shared toolbar ─ */
+  .tbar {
+    height:29px;background:#080909;
+    border-bottom:1px solid var(--border);
+    display:flex;align-items:center;
+    padding:0 8px;gap:4px;
+    flex-shrink:0;
+  }
+  .xbtn {
+    background:none;border:1px solid var(--border);
+    color:var(--text3);
+    font-family:'Rajdhani',sans-serif;
+    font-size:10px;font-weight:600;
+    letter-spacing:1px;text-transform:uppercase;
+    padding:2px 9px;cursor:pointer;border-radius:2px;
+    transition:all 0.1s;
+  }
+  .xbtn:hover { color:var(--red2);border-color:var(--red3);background:var(--red-glow); }
+  .xbtn.go { color:#22dd66;border-color:#198840; }
+  .xbtn.go:hover { background:rgba(34,221,102,0.08); }
+
+  /* ─ editor ─ */
+  #ftabs { display:flex;align-items:center;gap:0;overflow-x:auto;flex:1;scrollbar-width:none; }
+  #ftabs::-webkit-scrollbar{display:none;}
+  .ftab {
+    padding:0 11px;height:29px;
+    display:flex;align-items:center;
+    font-family:'Rajdhani',sans-serif;
+    font-size:10px;font-weight:600;
+    letter-spacing:1px;
+    color:var(--text3);
+    cursor:pointer;
+    border-right:1px solid var(--border);
+    white-space:nowrap;
+    transition:all 0.1s;
+    flex-shrink:0;
+  }
+  .ftab:hover { color:var(--text2); }
+  .ftab.on { color:var(--red2);background:var(--bg);border-bottom:1px solid var(--red); }
+  .eacts { display:flex;gap:3px;margin-left:auto;flex-shrink:0; }
+
+  .code-wrap { flex:1;display:flex;overflow:hidden; }
+  .lns {
+    width:36px;background:#070809;
+    border-right:1px solid #181a1c;
+    padding:7px 6px 7px 0;
+    font-size:11px;line-height:1.65;
+    color:var(--text3);text-align:right;
+    font-family:'Share Tech Mono',monospace;
+    overflow:hidden;flex-shrink:0;
+  }
+  textarea#ta {
+    flex:1;background:transparent;border:none;outline:none;
+    color:#d0d4d8;
+    font-family:'Share Tech Mono',monospace;
+    font-size:12px;line-height:1.65;
+    padding:7px 12px;resize:none;
+    tab-size:2;white-space:pre;overflow:auto;
+    caret-color:var(--red2);
+  }
+
+  /* ─ preview ─ */
+  .purl {
+    flex:1;background:#0c0d0f;border:1px solid var(--border);
+    color:var(--text3);font-family:'Share Tech Mono',monospace;
+    font-size:10px;padding:2px 8px;border-radius:2px;outline:none;
+  }
+  #pframe { flex:1;border:none;background:#fff;width:100%; }
+
+  /* ─ console ─ */
+  #cout {
+    flex:1;overflow-y:auto;
+    padding:6px 12px;
+    font-family:'Share Tech Mono',monospace;
+    font-size:11px;line-height:1.75;
+  }
+  .cl { padding:1px 0; }
+  .cl.log{color:var(--text);} .cl.err{color:#ff5050;} .cl.warn{color:#ffaa33;}
+  .cl.info{color:#55aaff;} .cl.ok{color:#44ee88;}
+  .cl .ts{color:var(--text3);margin-right:8px;font-size:10px;}
+  .cin-w {
+    height:29px;border-top:1px solid var(--border);
+    background:#070809;display:flex;align-items:center;
+    padding:0 10px;flex-shrink:0;
+  }
+  .cprompt{color:var(--red3);margin-right:7px;}
+  input#cin {
+    flex:1;background:none;border:none;outline:none;
+    color:var(--text);font-family:'Share Tech Mono',monospace;
+    font-size:11px;caret-color:var(--red2);
+  }
+
+  /* ─ scene ─ */
+  #sceneout{flex:1;overflow-y:auto;}
+  .sn {
+    display:flex;align-items:center;padding:5px 12px;gap:8px;
+    font-size:11px;color:var(--text2);cursor:pointer;
+    border-left:2px solid transparent;transition:all 0.1s;
+  }
+  .sn:hover{background:var(--red-glow);color:var(--text);border-left-color:var(--red3);}
+  .sn.on{background:rgba(224,48,48,0.08);border-left-color:var(--red);color:var(--red2);}
+  .sn.l1{padding-left:26px;} .sn.l2{padding-left:42px;}
+  .snt{font-size:9px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-left:auto;}
+
+  /* ─ inspector ─ */
+  #inscont{flex:1;overflow-y:auto;padding:8px;}
+  .pg{margin-bottom:12px;}
+  .pgl{font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--red3);padding:3px 4px;border-bottom:1px solid #181a1c;margin-bottom:4px;}
+  .pr{display:flex;align-items:center;padding:3px 4px;gap:6px;}
+  .pl{font-size:10px;color:var(--text3);width:70px;flex-shrink:0;}
+  .pi{flex:1;background:#0c0d0f;border:1px solid var(--border);color:var(--text);font-family:'Share Tech Mono',monospace;font-size:11px;padding:2px 7px;border-radius:2px;outline:none;}
+  .pi:focus{border-color:var(--red3);}
+
+  /* ─ files ─ */
+  #fmpanel{flex:1;overflow-y:auto;padding:10px;}
+  .fmgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:8px;}
+  .fmi{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px;border-radius:3px;cursor:pointer;border:1px solid transparent;transition:all 0.15s;}
+  .fmi:hover{background:var(--red-glow);border-color:var(--red3);}
+  .fmi.on{background:rgba(224,48,48,0.12);border-color:var(--red);}
+  .fmic{font-size:26px;} .fmin{font-size:10px;color:var(--text2);text-align:center;word-break:break-all;}
+
+  /* ─ modal ─ */
+  #modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9999;align-items:center;justify-content:center;}
+  #modal.on{display:flex;}
+  .mbox{background:var(--panel);border:1px solid var(--border);border-top:2px solid var(--red);width:350px;border-radius:3px;}
+  .mtitle{padding:10px 14px;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--red2);background:#07080a;border-bottom:1px solid var(--border);}
+  .mbody{padding:14px;display:flex;flex-direction:column;gap:9px;}
+  .mi{background:#0c0d0f;border:1px solid var(--border);color:var(--text);font-family:'Share Tech Mono',monospace;font-size:12px;padding:5px 9px;border-radius:2px;outline:none;width:100%;}
+  .mi:focus{border-color:var(--red3);}
+  .mbtns{display:flex;gap:7px;justify-content:flex-end;}
+  .mb{background:#0c0d0f;border:1px solid var(--border);color:var(--text2);font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:600;letter-spacing:1px;padding:5px 14px;cursor:pointer;border-radius:2px;text-transform:uppercase;transition:all 0.1s;}
+  .mb:hover{border-color:var(--red3);color:var(--red2);}
+  .mb.ok{background:rgba(224,48,48,0.15);border-color:var(--red3);color:var(--red2);}
+  .mb.ok:hover{background:rgba(224,48,48,0.28);}
+
+  ::-webkit-scrollbar{width:5px;height:5px;}
+  ::-webkit-scrollbar-track{background:#07080a;}
+  ::-webkit-scrollbar-thumb{background:#1e2022;border-radius:3px;}
+  ::-webkit-scrollbar-thumb:hover{background:var(--red3);}
+  ::selection{background:rgba(224,48,48,0.28);}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div id="topbar">
+  <div id="logo">NAVIS <em>ENGINE V5</em></div>
+
+  <div id="tabs">
+    <div class="tab on"  data-p="editor"    onclick="sw('editor',this)">   <span class="tab-ic">⚡</span>Editor</div>
+    <div class="tab"     data-p="preview"   onclick="sw('preview',this)">  <span class="tab-ic">⊞</span>Preview</div>
+    <div class="tab"     data-p="console"   onclick="sw('console',this)">  <span class="tab-ic">⌘</span>Console</div>
+    <div class="tab"     data-p="scene"     onclick="sw('scene',this)">    <span class="tab-ic">◈</span>Scene</div>
+    <div class="tab"     data-p="inspector" onclick="sw('inspector',this)"><span class="tab-ic">⚙</span>Inspector</div>
+    <div class="tab"     data-p="files"     onclick="sw('files',this)">    <span class="tab-ic">⊡</span>Files</div>
+    <div id="add-tab" title="New File" onclick="showModal()">＋</div>
+  </div>
+
+  <div id="topright">
+    <div class="dot"></div>
+    <div id="st">READY</div>
+  </div>
+</div>
+
+<!-- BODY -->
+<div id="body">
+
+  <!-- SIDEBAR -->
+  <div id="sb">
+    <div class="sb-sec">
+      <div class="sb-hd">⊡ Project</div>
+      <div class="flist" id="flist"></div>
+    </div>
+    <div class="sb-sec">
+      <div class="sb-hd">⚡ Actions</div>
+      <div class="sb-acts">
+        <button class="sbbtn" onclick="showModal()">＋ New File</button>
+        <button class="sbbtn" onclick="run()">▶ Run File</button>
+        <button class="sbbtn" onclick="clearCon()">✕ Clear Console</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div id="content">
+
+    <!-- EDITOR -->
+    <div class="panel on" id="panel-editor">
+      <div class="tbar">
+        <div id="ftabs"></div>
+        <div class="eacts">
+          <button class="xbtn" onclick="wrapSel()">Wrap</button>
+          <button class="xbtn" onclick="insSnip()">Snippet</button>
+          <button class="xbtn go" onclick="run()">▶ Run</button>
+        </div>
+      </div>
+      <div class="code-wrap">
+        <div class="lns" id="lns"></div>
+        <textarea id="ta" spellcheck="false"
+          oninput="onInput()"
+          onscroll="syncLns()"
+          onkeydown="onKey(event)"></textarea>
+      </div>
+    </div>
+
+    <!-- PREVIEW -->
+    <div class="panel" id="panel-preview">
+      <div class="tbar">
+        <button class="xbtn go" onclick="run()">▶ Run</button>
+        <input class="purl" id="purl" value="index.html" readonly />
+        <button class="xbtn" onclick="reload()">↺</button>
+      </div>
+      <iframe id="pframe" sandbox="allow-scripts allow-same-origin"></iframe>
+    </div>
+
+    <!-- CONSOLE -->
+    <div class="panel" id="panel-console">
+      <div id="cout"></div>
+      <div class="cin-w">
+        <span class="cprompt">&gt;</span>
+        <input id="cin" placeholder="evaluate expression..." onkeydown="cinKey(event)" />
+      </div>
+    </div>
+
+    <!-- SCENE -->
+    <div class="panel" id="panel-scene">
+      <div id="sceneout"></div>
+    </div>
+
+    <!-- INSPECTOR -->
+    <div class="panel" id="panel-inspector">
+      <div id="inscont"></div>
+    </div>
+
+    <!-- FILES -->
+    <div class="panel" id="panel-files">
+      <div id="fmpanel"><div class="fmgrid" id="fmgrid"></div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL -->
+<div id="modal">
+  <div class="mbox">
+    <div class="mtitle">New File</div>
+    <div class="mbody">
+      <input class="mi" id="mname" placeholder="filename.html" autocomplete="off"/>
+      <select class="mi" id="mtype">
+        <option value="html">HTML Document</option>
+        <option value="js">JavaScript</option>
+        <option value="css">CSS Stylesheet</option>
+        <option value="txt">Plain Text</option>
+      </select>
+      <textarea class="mi" id="mtpl" rows="3" placeholder="Starter content (optional)..."></textarea>
+      <div class="mbtns">
+        <button class="mb" onclick="hideModal()">Cancel</button>
+        <button class="mb ok" onclick="createFile()">Create</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════
+//  NAVIS ENGINE V5
+// ══════════════════════════════════════════════════
+
+const E = { files:{}, active:null, node:null, logs:[] };
+
+// Default files
+E.files['index.html'] = { name:'index.html', type:'html', content:
+`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>NAVIS Game</title>
+  <style>
+    body { margin:0; background:#0d0e0f; display:flex; flex-direction:column; align-items:center; }
+    h1 { color:#e03030; font-family:monospace; margin:16px 0; letter-spacing:4px; font-size:18px; }
+    canvas { border:1px solid #222; display:block; }
+  </style>
+</head>
+<body>
+  <h1>NAVIS GAME</h1>
+  <canvas id="c" width="480" height="300"></canvas>
+  <script>
+    const c = document.getElementById('c');
+    const ctx = c.getContext('2d');
+    let x=240, y=150, dx=2.5, dy=1.8, r=15;
+    function loop(){
+      ctx.fillStyle='#0d0e0f'; ctx.fillRect(0,0,480,300);
+      // glow
+      const g = ctx.createRadialGradient(x,y,0,x,y,r*2);
+      g.addColorStop(0,'rgba(224,48,48,0.4)'); g.addColorStop(1,'transparent');
+      ctx.fillStyle=g; ctx.fillRect(x-r*2,y-r*2,r*4,r*4);
+      // ball
+      ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2);
+      ctx.fillStyle='#e03030'; ctx.fill();
+      x+=dx; y+=dy;
+      if(x<r||x>480-r) dx=-dx;
+      if(y<r||y>300-r) dy=-dy;
+      requestAnimationFrame(loop);
+    }
+    loop();
+  <\/script>
+</body>
+</html>`};
+
+E.files['game.js'] = { name:'game.js', type:'js', content:
+`// NAVIS Engine V5 — game.js
+
+class Entity {
+  constructor(x, y, w, h, color='#e03030') {
+    this.x=x; this.y=y; this.w=w; this.h=h;
+    this.color=color; this.vx=0; this.vy=0; this.active=true;
+  }
+  update(dt=1) { this.x+=this.vx*dt; this.y+=this.vy*dt; }
+  draw(ctx) { ctx.fillStyle=this.color; ctx.fillRect(this.x,this.y,this.w,this.h); }
+}
+
+class Scene {
+  constructor(name='Main') { this.name=name; this.entities=[]; }
+  add(e) { this.entities.push(e); return this; }
+  remove(e) { this.entities=this.entities.filter(x=>x!==e); }
+  update(dt) { this.entities.filter(e=>e.active).forEach(e=>e.update(dt)); }
+  draw(ctx) { this.entities.filter(e=>e.active).forEach(e=>e.draw(ctx)); }
+}
+
+class Camera {
+  constructor(w,h) { this.x=0; this.y=0; this.w=w; this.h=h; this.zoom=1; }
+  apply(ctx) { ctx.save(); ctx.scale(this.zoom,this.zoom); ctx.translate(-this.x,-this.y); }
+  restore(ctx) { ctx.restore(); }
+}
+
+window.NavisEngine = { Entity, Scene, Camera };
+console.log('[NAVIS] Engine ready');`};
+
+E.files['style.css'] = { name:'style.css', type:'css', content:
+`/* NAVIS Engine V5 — style.css */
+* { box-sizing:border-box; margin:0; padding:0; }
+
+body {
+  background:#0d0e0f;
+  color:#c8cacc;
+  font-family:'Courier New', monospace;
+}
+
+canvas { display:block; image-rendering:pixelated; }
+
+.hud {
+  position:fixed; top:10px; left:10px;
+  color:#e03030; font-size:14px; letter-spacing:2px;
+}
+
+.btn {
+  background:#1a1c1e; border:1px solid #333;
+  color:#e03030; padding:6px 14px; cursor:pointer;
+  font-family:monospace; letter-spacing:1px;
+  transition:background 0.15s;
+}
+.btn:hover { background:#2a1010; }`};
+
+// ── Tab switching ────────────────────────────────
+function sw(id, el) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('panel-'+id).classList.add('on');
+  if(el) el.classList.add('on');
+  if(id==='files') renderFM();
+  if(id==='scene') renderScene();
+  if(id==='inspector') renderIns();
+}
+
+// ── Sidebar ──────────────────────────────────────
+function renderSB() {
+  const ic={html:'🌐',js:'⚡',css:'🎨',txt:'📄'};
+  document.getElementById('flist').innerHTML=Object.values(E.files).map(f=>`
+    <div class="frow${E.active===f.name?' on':''}" onclick="openFile('${f.name}')">
+      <span>${ic[f.type]||'📄'}</span>
+      <span class="fn">${f.name}</span>
+      <span class="fdel" onclick="delFile('${f.name}',event)">✕</span>
+    </div>`).join('');
+}
+
+function openFile(name) {
+  E.active=name;
+  renderSB();
+  renderFTabs();
+  loadTA();
+  sw('editor',document.querySelector('[data-p=editor]'));
+}
+
+function delFile(name,e) {
+  e.stopPropagation();
+  if(!confirm('Delete '+name+'?')) return;
+  delete E.files[name];
+  if(E.active===name) E.active=Object.keys(E.files)[0]||null;
+  renderSB(); renderFM(); renderFTabs();
+  if(E.active) loadTA();
+  clog('Deleted: '+name,'warn');
+}
+
+// ── Editor ───────────────────────────────────────
+function renderFTabs() {
+  document.getElementById('ftabs').innerHTML=Object.values(E.files).map(f=>`
+    <div class="ftab${E.active===f.name?' on':''}" onclick="openFile('${f.name}')">${f.name}</div>`
+  ).join('');
+}
+
+function loadTA() {
+  const ta=document.getElementById('ta');
+  const f=E.files[E.active];
+  if(!ta||!f) return;
+  ta.value=f.content;
+  updLns();
+}
+
+function onInput() {
+  updLns();
+  const ta=document.getElementById('ta');
+  if(E.active&&E.files[E.active]) E.files[E.active].content=ta.value;
+}
+
+function updLns() {
+  const ta=document.getElementById('ta');
+  const ln=document.getElementById('lns');
+  if(!ta||!ln) return;
+  ln.innerHTML=Array.from({length:ta.value.split('\n').length},(_,i)=>i+1).join('<br>');
+}
+
+function syncLns() {
+  const ta=document.getElementById('ta'), ln=document.getElementById('lns');
+  if(ta&&ln) ln.scrollTop=ta.scrollTop;
+}
+
+function onKey(e) {
+  const ta=document.getElementById('ta');
+  if(e.key==='Tab'){
+    e.preventDefault();
+    const s=ta.selectionStart,end=ta.selectionEnd;
+    ta.value=ta.value.substring(0,s)+'  '+ta.value.substring(end);
+    ta.selectionStart=ta.selectionEnd=s+2; onInput();
+  }
+  if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();clog('Saved: '+(E.active||'?'),'ok');setS('SAVED');}
+  if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();run();}
+}
+
+function wrapSel() {
+  const ta=document.getElementById('ta');
+  const s=ta.selectionStart,end=ta.selectionEnd,sel=ta.value.substring(s,end);
+  if(!sel) return;
+  const w=`<div>${sel}</div>`;
+  ta.value=ta.value.substring(0,s)+w+ta.value.substring(end);
+  ta.selectionStart=s; ta.selectionEnd=s+w.length; onInput();
+}
+
+const SNIPS=[
+  `\nconst e = new NavisEngine.Entity(100,100,32,32,'#e03030');\nscene.add(e);\n`,
+  `\nconst ctx=canvas.getContext('2d');\nctx.fillStyle='#e03030';\nctx.fillRect(x,y,w,h);\n`,
+  `\nfunction loop(ts){\n  ctx.clearRect(0,0,W,H);\n  scene.update();\n  scene.draw(ctx);\n  requestAnimationFrame(loop);\n}\nrequestAnimationFrame(loop);\n`,
+  `\ndocument.addEventListener('keydown',e=>{\n  if(e.key==='ArrowLeft') player.vx=-3;\n  if(e.key==='ArrowRight') player.vx=3;\n  if(e.key===' ') player.vy=-8;\n});\n`,
+];
+let sni=0;
+function insSnip(){
+  const ta=document.getElementById('ta');
+  const snip=SNIPS[sni++%SNIPS.length];
+  const pos=ta.selectionStart;
+  ta.value=ta.value.substring(0,pos)+snip+ta.value.substring(pos);
+  ta.selectionStart=ta.selectionEnd=pos+snip.length; onInput();
+}
+
+// ── Preview ──────────────────────────────────────
+function run() {
+  const f=E.files[E.active]||E.files['index.html'];
+  if(!f){clog('No file to run','err');return;}
+  document.getElementById('pframe').srcdoc=f.content;
+  document.getElementById('purl').value=f.name;
+  sw('preview',document.querySelector('[data-p=preview]'));
+  clog('Running: '+f.name,'ok');
+  setS('RUNNING: '+f.name);
+}
+
+function reload() {
+  const fr=document.getElementById('pframe');
+  if(fr.srcdoc){const s=fr.srcdoc;fr.srcdoc='';setTimeout(()=>fr.srcdoc=s,10);}
+}
+
+// ── Console ──────────────────────────────────────
+function clog(msg,type='log'){
+  const now=new Date();
+  const ts=[now.getHours(),now.getMinutes(),now.getSeconds()].map(n=>String(n).padStart(2,'0')).join(':');
+  E.logs.push({msg,type,ts});
+  const out=document.getElementById('cout');
+  if(out){ out.innerHTML+=`<div class="cl ${type}"><span class="ts">${ts}</span>${esc(msg)}</div>`; out.scrollTop=out.scrollHeight; }
+}
+
+function cinKey(e){
+  if(e.key!=='Enter') return;
+  const inp=document.getElementById('cin');
+  const cmd=inp.value.trim(); if(!cmd) return;
+  clog('> '+cmd,'info'); inp.value='';
+  try{const r=eval(cmd);if(r!==undefined)clog(String(r),'log');}
+  catch(err){clog(err.message,'err');}
+}
+
+function clearCon(){
+  E.logs=[];
+  const out=document.getElementById('cout');
+  if(out) out.innerHTML='';
+}
+
+// ── Scene ─────────────────────────────────────────
+const NODES=[
+  {n:'Scene Root',t:'Scene',l:0},
+  {n:'Camera',t:'Camera',l:1},
+  {n:'World',t:'Group',l:1},
+  {n:'Player',t:'Entity',l:2},
+  {n:'└ Sprite',t:'Sprite',l:2},
+  {n:'└ Collider',t:'Box2D',l:2},
+  {n:'Enemies',t:'Group',l:2},
+  {n:'└ Enemy_01',t:'Entity',l:2},
+  {n:'└ Enemy_02',t:'Entity',l:2},
+  {n:'UI Layer',t:'Canvas',l:1},
+  {n:'└ HUD',t:'UIPanel',l:2},
+];
+
+function renderScene(){
+  document.getElementById('sceneout').innerHTML=NODES.map((n,i)=>`
+    <div class="sn${E.node===i?' on':''}${n.l===1?' l1':n.l>=2?' l2':''}" onclick="selNode(${i})">
+      ${n.n}<span class="snt">${n.t}</span>
+    </div>`).join('');
+}
+
+function selNode(i){
+  E.node=i; renderScene(); renderIns();
+  sw('inspector',document.querySelector('[data-p=inspector]'));
+}
+
+// ── Inspector ─────────────────────────────────────
+function renderIns(){
+  const el=document.getElementById('inscont');
+  if(!el) return;
+  if(E.node===null){el.innerHTML='<div style="padding:14px;color:var(--text3);font-size:11px;">Select a scene node to inspect.</div>';return;}
+  const nd=NODES[E.node];
+  el.innerHTML=`
+    <div class="pg"><div class="pgl">Identity</div>
+      <div class="pr"><span class="pl">Name</span><input class="pi" value="${nd.n.replace(/└ /,'')}"/></div>
+      <div class="pr"><span class="pl">Type</span><input class="pi" value="${nd.t}" readonly/></div>
+      <div class="pr"><span class="pl">Active</span><input class="pi" value="true"/></div>
+    </div>
+    <div class="pg"><div class="pgl">Transform</div>
+      <div class="pr"><span class="pl">X</span><input class="pi" value="0"/></div>
+      <div class="pr"><span class="pl">Y</span><input class="pi" value="0"/></div>
+      <div class="pr"><span class="pl">Width</span><input class="pi" value="32"/></div>
+      <div class="pr"><span class="pl">Height</span><input class="pi" value="32"/></div>
+      <div class="pr"><span class="pl">Rotation</span><input class="pi" value="0"/></div>
+      <div class="pr"><span class="pl">Scale X</span><input class="pi" value="1"/></div>
+      <div class="pr"><span class="pl">Scale Y</span><input class="pi" value="1"/></div>
+    </div>
+    <div class="pg"><div class="pgl">Render</div>
+      <div class="pr"><span class="pl">Color</span><input class="pi" value="#e03030"/></div>
+      <div class="pr"><span class="pl">Opacity</span><input class="pi" value="1"/></div>
+      <div class="pr"><span class="pl">Z-Index</span><input class="pi" value="0"/></div>
+    </div>`;
+}
+
+// ── File Manager ──────────────────────────────────
+function renderFM(){
+  const ic={html:'🌐',js:'⚡',css:'🎨',txt:'📄'};
+  document.getElementById('fmgrid').innerHTML=Object.values(E.files).map(f=>`
+    <div class="fmi${E.active===f.name?' on':''}"
+      onclick="E.active='${f.name}';renderFM();renderSB();"
+      ondblclick="openFile('${f.name}')">
+      <div class="fmic">${ic[f.type]||'📄'}</div>
+      <div class="fmin">${f.name}</div>
+    </div>`).join('');
+}
+
+// ── Modal ─────────────────────────────────────────
+function showModal(){document.getElementById('modal').classList.add('on');setTimeout(()=>document.getElementById('mname').focus(),40);}
+function hideModal(){document.getElementById('modal').classList.remove('on');document.getElementById('mname').value='';document.getElementById('mtpl').value='';}
+
+function createFile(){
+  let name=document.getElementById('mname').value.trim();
+  const type=document.getElementById('mtype').value;
+  const tpl=document.getElementById('mtpl').value;
+  if(!name){alert('Enter a filename');return;}
+  if(!name.includes('.')) name+='.'+type;
+  const def={
+    html:`<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <title>${name}</title>\n</head>\n<body>\n  <h1>${name}</h1>\n</body>\n</html>`,
+    js:`// ${name}\nconsole.log('${name} loaded');`,
+    css:`/* ${name} */\nbody { margin:0; }`,
+    txt:`${name}\n`,
+  };
+  E.files[name]={name,type,content:tpl||def[type]||''};
+  hideModal(); renderSB(); renderFM(); openFile(name);
+  clog('Created: '+name,'ok');
+}
+
+// ── Helpers ───────────────────────────────────────
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function setS(msg){document.getElementById('st').textContent=msg;setTimeout(()=>document.getElementById('st').textContent='READY',3000);}
+
+// ── Keyboard shortcuts ────────────────────────────
+document.addEventListener('keydown',e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key==='n'){e.preventDefault();showModal();}
+  if((e.ctrlKey||e.metaKey)&&e.key==='p'){e.preventDefault();run();}
+  if(e.key==='Escape')hideModal();
+});
+document.getElementById('modal').addEventListener('click',e=>{if(e.target===document.getElementById('modal'))hideModal();});
+
+// ── Boot ──────────────────────────────────────────
+E.active='index.html';
+renderSB(); renderFTabs(); loadTA(); renderIns();
+clog('NAVIS ENGINE V5 initialized','ok');
+clog('Files: '+Object.keys(E.files).join(', '),'info');
+clog('Ctrl+S = Save  |  Ctrl+Enter = Run  |  Ctrl+N = New File','info');
+</script>
+</body>
+</html>
